@@ -1,34 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PlusCircle, X } from "lucide-react";
 
-const initialMedicines = [
-    {
-        name: "Paracetamol",
-        departments: ["Cardiology", "Pediatrics"],
-        quantity: 50,
-        company: "ABC Pharma",
-        image: "https://nepalskinhospital.com/wp-content/uploads/2020/12/Rectangle-3.jpg",
-    },
-    {
-        name: "Ibuprofen",
-        departments: ["Orthopedics", "Neurology"],
-        quantity: 30,
-        company: "XYZ Pharma",
-        image: "https://nepalskinhospital.com/wp-content/uploads/2020/12/Rectangle-3.jpg",
-    },
-    {
-        name: "Aspirin",
-        departments: ["Cardiology", "Neurology"],
-        quantity: 25,
-        company: "DEF Pharma",
-        image: "https://nepalskinhospital.com/wp-content/uploads/2020/12/Rectangle-3.jpg",
-    },
-];
-
 const MedicinePage = () => {
-    const [medicines, setMedicines] = useState(initialMedicines);
+    const [medicines, setMedicines] = useState([]);
     const [newMedicine, setNewMedicine] = useState({
         name: "",
         departments: [],
@@ -38,22 +15,55 @@ const MedicinePage = () => {
     });
     const [showForm, setShowForm] = useState(false); // State to toggle the visibility of the form
 
-    const handleAddMedicine = () => {
+    // Fetch medicines from the API
+    useEffect(() => {
+        const fetchMedicines = async () => {
+            try {
+                const response = await axios.get("http://localhost:7180/medicine");
+                setMedicines(response.data.data); // Set fetched medicines data
+            } catch (error) {
+                console.error("Error fetching medicines:", error);
+            }
+        };
+
+        fetchMedicines();
+    }, []);
+
+    const handleAddMedicine = async () => {
         if (
             newMedicine.name &&
             newMedicine.departments.length > 0 &&
             newMedicine.quantity &&
             newMedicine.company
         ) {
-            setMedicines([...medicines, newMedicine]);
-            setNewMedicine({
-                name: "",
-                departments: [],
-                quantity: "",
-                company: "",
-                image: "https://nepalskinhospital.com/wp-content/uploads/2020/12/Rectangle-3.jpg", // Reset image
-            });
-            setShowForm(false); // Close the form after adding medicine
+            try {
+                const formData = new FormData();
+                formData.append("name", newMedicine.name);
+                formData.append("departments", newMedicine.departments);
+                formData.append("quantity", newMedicine.quantity);
+                formData.append("company", newMedicine.company);
+                formData.append("image", newMedicine.image); // You can change this to handle file uploads if required
+
+                const response = await axios.post("http://localhost:7180/medicine/add", formData, {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                    },
+                });
+
+                // On success, add the new medicine to the state
+                setMedicines([...medicines, response.data.data]);
+                setNewMedicine({
+                    name: "",
+                    departments: [],
+                    quantity: "",
+                    company: "",
+                    image: "", // Reset image
+                });
+                setShowForm(false); // Close the form after adding medicine
+            } catch (error) {
+                console.error("Error adding medicine:", error);
+                alert("Failed to add medicine.");
+            }
         } else {
             alert("Please fill all the fields");
         }
@@ -68,7 +78,7 @@ const MedicinePage = () => {
     };
 
     const handleDepartmentChange = (e) => {
-        const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
+        const selectedOptions = Array.from(e.target.selectedOptions, (option) => option.value);
         setNewMedicine((prevState) => ({
             ...prevState,
             departments: selectedOptions,
@@ -141,13 +151,18 @@ const MedicinePage = () => {
                                 className="w-full p-2 border rounded-lg shadow-sm text-sm"
                             />
                             <input
-                                type="text"
+                                type="file"
                                 name="image"
-                                placeholder="Image URL"
-                                value={newMedicine.image}
-                                onChange={handleChange}
+                                accept="image/*"
+                                onChange={(e) =>
+                                    setNewMedicine((prevState) => ({
+                                        ...prevState,
+                                        image: e.target.files[0],
+                                    }))
+                                }
                                 className="w-full p-2 border rounded-lg shadow-sm text-sm"
                             />
+
                             <Button
                                 onClick={handleAddMedicine}
                                 className="bg-blue-500 text-white px-4 py-2 rounded-lg"
@@ -186,8 +201,6 @@ const MedicinePage = () => {
                             </div>
                         </div>
                     </Card>
-
-
                 ))}
             </div>
         </div>

@@ -1,6 +1,10 @@
 import express from "express"
 import { handleEmployeeRegister } from "../controller/employee.controller.js";
+import { getAllEmployees } from "../controller/employee.controller.js";
 import User from "../model/user.model.js";
+import { getEmployInfo } from "../controller/employee.controller.js";
+import { removeEmployee } from "../controller/employee.controller.js";
+import { upload } from "../middleware/multer.middleware.js";
 const router = express.Router()
 
 
@@ -25,6 +29,8 @@ const authMiddleware = async (req, res, next) => {
     }
 };
 
-router.post('/register', authMiddleware, handleEmployeeRegister)
-
+router.post('/register', upload.single('image'),handleEmployeeRegister)
+router.get('/getallemployee', getAllEmployees)
+router.get('/detail/:id', getEmployInfo)
+router.delete('/remove',removeEmployee );
 export default router

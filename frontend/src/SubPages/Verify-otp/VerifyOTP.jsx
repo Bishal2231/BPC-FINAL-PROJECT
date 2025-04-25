@@ -39,7 +39,7 @@ const VerifyOTP = () => {
             await verifyEmail(verificationCode)
             toast.success("email verfy successful")
 
-            navigate("/")
+            navigate("/login")
         } catch (error) {
             console.log(error)
             throw error;
@@ -49,7 +49,7 @@ const VerifyOTP = () => {
 
     return (
         <div className="flex justify-center items-center h-screen   bg-[url('/images/wallpaper/phonesignup.png')] sm:bg-[url('/images/wallpaper/tabsignup.png')] md:bg-[url('/images/wallpaper/pcsignup.png')]">
-            <div className=" rounded-lg shadow-lg w-96 p-[40px]  m-[20px] backdrop-blur-sm border-4 border-orange-500">
+            <div className=" rounded-lg shadow-lg w-96 p-[60px]  m-[20px] backdrop-blur-sm border-4 border-orange-500">
                 <h2 className="text-3xl font-bold text-center mb-6 	" >Verification Code</h2>
                 <p className="text-slate-500"> Please type the verification code sent to your gmail</p>
                 <div className="flex justify-between mb-4 mt-[4vh]">

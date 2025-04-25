@@ -2,12 +2,14 @@ import User from "../model/user.model.js";
 import bcrypt from "bcryptjs";
 import { uploadoncloudinary } from "../utils/cloudinary.utils.js";
 import { generateTokenAndSetCookie } from "../utils/verifyToken.js";
+import { generateVerificationCOde } from "../utils/verifyToken.js";
+import {Organization} from "../model/organization.model.js";
 export const registerUser = async (req,res) => {
     console.log("req.body",req.body)
 console.log("file",req.file)
     try {
-         const { userName, organizationName, password, phoneNumber, email, location, } = req.body;
-    if (!userName || !organizationName || !password || !email) {
+         const { userName, organizationName, password, phoneNumber, email, location,orgpass } = req.body;
+    if (!userName || !organizationName || !password || !email||!orgpass) {
       return res.status(400).json({ message: "Please provide all required fields." });
         }
         let avatarUrl;
@@ -21,8 +23,12 @@ console.log("avatar urk ",avatarUrl)
     if (existingUser) {
       return res.status(400).json({ message: "Email is already registered." });
     }
-
+   const org = await Organization.findOne({ adminPass: orgpass });
+    if (!org) {
+      return res.status(404).json({ message: "Organization not found with this password." });
+    }
     const hashedPassword = await bcrypt.hash(password, 10);
+     const verificationToken=  generateVerificationCOde()
 
     const newUser = new User({
       userName,
@@ -31,14 +37,20 @@ console.log("avatar urk ",avatarUrl)
       phoneNumber,
       email,
       location,
-      avatar:cloudinaryUpload?cloudinaryUpload.secure_url:null
+            orgid: org._id, // 👈 link using ref
+
+      avatar: cloudinaryUpload ? cloudinaryUpload.secure_url : null,
+      verificationToken,
+      verificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000,
+               
+
     });
 
     // Save the user to the database
     await newUser.save();
 
     // Send response
-    res.status(201).json({ message: "User registered successfully.", user: newUser });
+    res.status(200).json({ message: "User registered successfully.", user: newUser });
 
 
     } catch (error) {
@@ -73,9 +85,13 @@ export const loginUser = async (req, res) => {
         const token = generateTokenAndSetCookie(res, user._id)
 
     // Send the token as a response
-    res.json({
+    res.status(200).json({
       message: 'Login successful',
       token: `Bearer ${token}`,
+        user:{
+            ...user._doc,
+            password:undefined
+        }
     });
   } catch (error) {
     console.error(error);

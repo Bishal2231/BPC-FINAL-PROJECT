@@ -15,12 +15,18 @@ const userSchema = new mongoose.Schema({
         required:true
     }, phoneNumber: {
         type: Number,
-        unique:true
     }, email: {
         type: String,
         unique: true,
         required:true
   },
+  orgpass: {
+    type: String,
+  }, orgid: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Organization",  
+  },
+    
   avatar: {
     type: String,
     default: "https://i.pinimg.com/736x/58/51/2e/58512eb4e598b5ea4e2414e3c115bef9.jpg",

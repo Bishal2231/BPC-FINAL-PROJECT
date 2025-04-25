@@ -1,7 +1,11 @@
 import { useState } from "react";
 import axios from "axios";
-import { userAuthStore } from "../../authstore/Authstore";
+import { userAuthStore } from "../../authstore/Authstore"; // Adjust the import path as necessary
+import { useNavigate } from "react-router-dom"; // Import useNavigate from react-router-dom
 const Signup = () => {
+
+    const navigate = useNavigate(); // ✅ valid here
+
     const { signup }=userAuthStore()
     const [formData, setFormData] = useState({
         userName: "",
@@ -11,6 +15,7 @@ const Signup = () => {
         email: "",
         location: "",
         avatar: null,
+        orgpass: "",
     });
 
     const handleChange = (e) => {
@@ -33,8 +38,12 @@ const Signup = () => {
             //     headers: { "Content-Type": "multipart/form-data" },
             // });
             // alert(res.data.message);
-            await signup(data)
-        } catch (error) {
+            const response=  await signup(data)
+            if (response.status === 200 || response.status === 201) {
+                    console.log("Signup successful");
+                navigate("/verify-otp"); // Redirect to login page after successful signup
+                }
+            } catch (error) {
             console.error(error);
             alert("Registration failed");
         }
@@ -120,6 +129,15 @@ const Signup = () => {
                                     type="text"
                                     name="location"
                                     placeholder="Location"
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </div> <div>
+                                <input
+                                    className="w-full px-4 py-3 rounded-lg border mb-2 border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                                    type="text"
+                                    name="orgpass"
+                                    placeholder="org pass"
                                     onChange={handleChange}
                                     required
                                 />

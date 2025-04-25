@@ -1,88 +1,36 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
-
-const employees = [
-    {
-        id: "HOS001",
-        name: "Anthony Lewis",
-        role: "Machine Cleaner",
-        department: "Maintenance",
-        status: "Paid",
-        monthPending: 0,
-        image: "https://randomuser.me/api/portraits/men/1.jpg",
-    },
-    {
-        id: "HOS002",
-        name: "Brian Villalobos",
-        role: "Nurse Helper",
-        department: "Nursing Assistance",
-        status: "Pending",
-        monthPending: 2,
-        image: "https://randomuser.me/api/portraits/women/2.jpg",
-    },
-    {
-        id: "HOS003",
-        name: "Harvey Smith",
-        role: "Room Cleaner",
-        department: "Housekeeping",
-        status: "Paid",
-        monthPending: 0,
-        image: "https://randomuser.me/api/portraits/men/3.jpg",
-    },
-    {
-        id: "HOS004",
-        name: "Sophia Martin",
-        role: "Dressing Assistant",
-        department: "Wound Care",
-        status: "Pending",
-        monthPending: 1,
-        image: "https://randomuser.me/api/portraits/women/10.jpg",
-    },
-];
-
-const doctors = [
-    {
-        id: "DOC001",
-        name: "Dr. Emily Carter",
-        specialization: "Dermatology",
-        status: "Paid",
-        monthPending: 0,
-        image: "https://randomuser.me/api/portraits/women/4.jpg",
-    },
-    {
-        id: "DOC002",
-        name: "Dr. Marcus Reed",
-        specialization: "Orthopedics",
-        status: "Pending",
-        monthPending: 3,
-        image: "https://randomuser.me/api/portraits/men/5.jpg",
-    },
-    {
-        id: "DOC003",
-        name: "Dr. Natalie Brooks",
-        specialization: "Cardiology",
-        status: "Pending",
-        monthPending: 2,
-        image: "https://randomuser.me/api/portraits/women/6.jpg",
-    },
-    {
-        id: "DOC004",
-        name: "Dr. Alan Kim",
-        specialization: "Neurosurgery",
-        status: "Paid",
-        monthPending: 0,
-        image: "https://randomuser.me/api/portraits/men/7.jpg",
-    },
-];
+import { Link } from "react-router-dom";
 
 export default function Payroll() {
     const [isEmployeePayroll, setIsEmployeePayroll] = useState(true);
+    const [employees, setEmployees] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchEmployees = async () => {
+            try {
+                const res = await axios.get("http://localhost:7180/employee/getallemployee");
+                setEmployees(res.data.employees);
+            } catch (err) {
+                console.error("Error fetching employees:", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchEmployees();
+    }, []);
+
+    const staff = employees.filter(emp => emp.type === "staff");
+    const doctors = employees.filter(emp => emp.type === "doctor");
 
     return (
         <div className="p-6">
-            <div className=" items-center mb-4">
+            <div className="items-center mb-4">
                 <h2 className="text-2xl font-semibold">Payroll</h2>
                 <div className="flex gap-4 justify-around">
                     <Button onClick={() => setIsEmployeePayroll(true)} variant={isEmployeePayroll ? "default" : "outline"}>
@@ -94,8 +42,10 @@ export default function Payroll() {
                 </div>
             </div>
 
-            {isEmployeePayroll ? (
-                <EmployeePayrollTable employees={employees} />
+            {loading ? (
+                <p>Loading...</p>
+            ) : isEmployeePayroll ? (
+                <EmployeePayrollTable employees={staff} />
             ) : (
                 <DoctorPayrollTable doctors={doctors} />
             )}
@@ -111,11 +61,13 @@ function EmployeePayrollTable({ employees }) {
                     <TableHead>Staff</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Months Pending</TableHead>
+                    <TableHead>Pay</TableHead>
+
                 </TableRow>
             </TableHeader>
             <TableBody>
                 {employees.map((employee) => (
-                    <TableRow key={employee.id}>
+                    <TableRow key={employee._id}>
                         <TableCell className="flex items-center gap-3">
                             <Avatar className="w-10 h-10">
                                 <AvatarImage src={employee.image} alt={employee.name} />
@@ -126,11 +78,18 @@ function EmployeePayrollTable({ employees }) {
                             </div>
                         </TableCell>
                         <TableCell>
-                            <span className={`px-2 py-1 rounded text-white ${employee.status === "Paid" ? "bg-green-500" : "bg-red-500"}`}>
-                                {employee.status}
+                            <span className={`px-2 py-1 rounded text-white ${employee.paid === "Paid" ? "bg-green-500" : "bg-red-500"}`}>
+                                {employee.paid}
                             </span>
                         </TableCell>
-                        <TableCell>{employee.status === "Pending" ? `${employee.monthPending} Month(s)` : "N/A"}</TableCell>
+                        <TableCell>
+                            {employee.paid === "Pending" && employee.pendingSalary !== null
+                                ? `${employee.pendingSalary} Month(s)`
+                                : "N/A"}
+                        </TableCell>
+                        <TableCell>
+                            <Link to=""> Pay Now</Link>
+                        </TableCell>
                     </TableRow>
                 ))}
             </TableBody>
@@ -150,22 +109,26 @@ function DoctorPayrollTable({ doctors }) {
             </TableHeader>
             <TableBody>
                 {doctors.map((doctor) => (
-                    <TableRow key={doctor.id}>
+                    <TableRow key={doctor._id}>
                         <TableCell className="flex items-center gap-3">
                             <Avatar className="w-10 h-10">
                                 <AvatarImage src={doctor.image} alt={doctor.name} />
                             </Avatar>
                             <div>
                                 <p className="font-medium">{doctor.name}</p>
-                                <p className="text-gray-500 text-sm">{doctor.specialization}</p>
+                                <p className="text-gray-500 text-sm">{doctor.department}</p>
                             </div>
                         </TableCell>
                         <TableCell>
-                            <span className={`px-2 py-1 rounded text-white ${doctor.status === "Paid" ? "bg-green-500" : "bg-red-500"}`}>
-                                {doctor.status}
+                            <span className={`px-2 py-1 rounded text-white ${doctor.paid === "Paid" ? "bg-green-500" : "bg-red-500"}`}>
+                                {doctor.paid}
                             </span>
                         </TableCell>
-                        <TableCell>{doctor.status === "Pending" ? `${doctor.monthPending} Month(s)` : "N/A"}</TableCell>
+                        <TableCell>
+                            {doctor.paid === "Pending" && doctor.pendingSalary !== null
+                                ? `${doctor.pendingSalary} Month(s)`
+                                : "N/A"}
+                        </TableCell>
                     </TableRow>
                 ))}
             </TableBody>

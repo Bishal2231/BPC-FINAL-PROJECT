@@ -1,22 +1,26 @@
     import { useState } from "react";
 import axios from "axios";
-    import { userAuthStore } from "../../authstore/Authstore";
+import { userAuthStore } from "../../authstore/Authstore";
+    import { useNavigate } from "react-router-dom";
 
-    const Login = () => {
+const Login = () => {
+        const navigate = useNavigate(); // ✅ valid here
         const [formData, setFormData] = useState({ email: "", password: "" });
 
         const handleChange = (e) => {
             setFormData({ ...formData, [e.target.name]: e.target.value });
         };
-        const { setToken } = userAuthStore()
+        const { setToken, login } = userAuthStore()
         const handleSubmit = async (e) => {
             e.preventDefault();
             try {
-                const res = await axios.post("http://localhost:3000/user/login", { email:formData.email,password:formData.password });
+                // const res = await axios.post("http://localhost:7180/user/login", { email:formData.email,password:formData.password });
+                const res = await login(formData)
+                if (res.status === 200 || res.status === 201) { 
+                    navigate('/')
+                }
                 console.log(res)
-                setToken(res.data.token);  // Store token in Zustand
 
-                alert("Login Successful!");
             } catch (error) {
                 console.error(error);
                 alert("Invalid credentials");
