@@ -162,25 +162,32 @@ const MedicinePage = () => {
             {/* Medicines List */}
             <div className="grid grid-cols-3 gap-4 mt-6">
                 {medicines.map((medicine, index) => (
-                    <Card key={index} className="p-4 bg-white rounded-lg shadow-sm relative">
-                        <h3 className="font-semibold text-lg mb-2">{medicine.name}</h3>
-                        <img
-                            src={medicine.image}
-                            alt={medicine.name}
-                            className="w-full h-32 object-cover rounded-lg mb-4"
-                        />
-                        <div className="space-y-2">
-                            <p>
-                                <strong>Departments:</strong> {medicine.departments.join(", ")}
-                            </p>
-                            <p>
-                                <strong>Quantity:</strong> {medicine.quantity}
-                            </p>
-                            <p>
-                                <strong>Company:</strong> {medicine.company}
-                            </p>
+                    <Card
+                        key={index}
+                        className="p-0 bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 ease-in-out transform hover:-translate-y-2 overflow-hidden"
+                    >
+                        <div
+                            className="w-full h-40 bg-cover bg-center"
+                            style={{ backgroundImage: `url(${medicine.image})` }}
+                        ></div>
+
+                        <div className="p-4">
+                            <h3 className="font-semibold text-xl mb-3 text-gray-800">{medicine.name}</h3>
+                            <div className="space-y-2 text-gray-700 text-sm">
+                                <p>
+                                    <strong className="text-gray-900">Departments:</strong> {medicine.departments.join(", ")}
+                                </p>
+                                <p>
+                                    <strong className="text-gray-900">Quantity:</strong> {medicine.quantity}
+                                </p>
+                                <p>
+                                    <strong className="text-gray-900">Company:</strong> {medicine.company}
+                                </p>
+                            </div>
                         </div>
                     </Card>
+
+
                 ))}
             </div>
         </div>

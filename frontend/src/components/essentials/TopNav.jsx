@@ -12,14 +12,15 @@ import {
   FaCog,
   FaUser
 } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 const TopNav = () => {
   const { user } = userAuthStore()
   if (user) {
-  console.log("user exits",user)
+    console.log("user exits", user)
   } else {
     console.log("no user")
-}
+  }
   return (
     <div className="w-full flex items-center bg-white justify-between px-4 py-3 border-b border-gray-200">
       {/* Left Section */}
@@ -80,7 +81,9 @@ const TopNav = () => {
           </div>
 
           <div className="h-8 w-8 bg-gray-200 flex items-center justify-center rounded-md">
-            <FaUser className="text-gray-600 text-sm" />
+            <Link to="/user">
+              <FaUser className="text-gray-600 text-sm" />
+            </Link>
           </div>
         </div>
       </div>

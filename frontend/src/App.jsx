@@ -1,7 +1,6 @@
 import './App.css'
 import { Route, Routes } from "react-router-dom"
 import Home from './Page/Home/Home'
-import Employeepage from './Page/Employee/Employeepage'
 import Signup from './SubPages/Signup/Signup'
 import Login from './SubPages/Login/Login'
 import { Attendanceemployee } from './Page/Attendenceemployee'
@@ -17,6 +16,7 @@ import Department from './Page/Department'
 import AppointmentList from './Page/Appointment'
 import Payroll from './Page/Payroll'
 import MedicinePage from './Page/Medicine'
+import UserPage from './Page/user/User'
 function App() {
   return (
     <>
@@ -28,26 +28,33 @@ function App() {
             {/* Routes */}
             <Routes>
               <Route path="/" element={<Home />} />
-              <Route path="/employee" element={<Employeepage />} />
               <Route path="/attendancedoctor" element={<Attendancedoctor />} />
               <Route path="/attendanceemployee" element={<Attendanceemployee />} />
               <Route path="/adminleave" element={<Adminleave />} />
               <Route path="/empleave" element={<Empleave />} />
               <Route path="/shifts" element={<Shifts />} />
               <Route path="/department" element={<Department />} />
-              <Route path="/signup" element={<Signup />} />
-              <Route path="/login" element={<Login />} />
               <Route path="/addemployee" element={<AddEmployeePage />} />
               <Route path="/verify-otp" element={<VerifyOTP />} />
               <Route path="/appointment" element={<AppointmentList />} />
               <Route path="/medicine" element={<MedicinePage />} />
 
               <Route path="/payroll" element={<Payroll />} />
-              
+
+              <Route path="/user" element={<UserPage />} />
+
             </Routes>
+         
           </div>
+          
         </div>
+     
       </div>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+
+      </Routes>
     </>
   )
 }
